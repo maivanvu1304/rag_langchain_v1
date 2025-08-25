@@ -1,0 +1,38 @@
+[project]
+name = "rag-lagchain-v1"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "maivanvu1304",email = "maivanvu134@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "streamlit>=1.36.0",
+    "langchain>=0.2.10",
+    "langchain-community>=0.2.9",
+    "langchain-openai>=0.1.19",
+    "langgraph>=0.2.15",
+    "qdrant-client>=1.9.1",
+    "sentence-transformers>=3.0.1",
+    "pypdf>=4.3.0",
+    "pillow>=10.0.0",
+    "pymupdf>=1.23.0",
+    "pandas>=2.0.0",
+    "docx2txt>=0.8",
+    "markdown>=3.6",
+    "python-dotenv>=1.0.1",
+    "tiktoken>=0.7.0",
+    "pydantic>=2.8.2",
+    "typing-extensions>=4.12.2",
+    "beautifulsoup4 (>=4.13.5,<5.0.0)",
+    "black (>=25.1.0,<26.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "rag_lagchain_v1", from = "src"}]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
