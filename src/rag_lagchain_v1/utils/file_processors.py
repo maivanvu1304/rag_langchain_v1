@@ -1,8 +1,9 @@
+"""File processing utilities for different document formats."""
+
 from __future__ import annotations
 
 import io
-import os
-from typing import Iterable, List, Dict
+from typing import List, Dict, Tuple
 from pathlib import Path
 
 import docx2txt
@@ -10,17 +11,11 @@ from pypdf import PdfReader
 from markdown import markdown
 from bs4 import BeautifulSoup
 import fitz  # PyMuPDF
-from PIL import Image
 import pandas as pd
 
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-
-SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
-
-
-def _read_pdf_with_images(file_bytes: bytes, filename: str) -> tuple[str, List[str], List[Dict]]:
-    """Extract text, images, and tables from PDF"""
+def read_pdf_with_images(file_bytes: bytes, filename: str) -> Tuple[str, List[str], List[Dict]]:
+    """Extract text, images, and tables from PDF using PyMuPDF."""
     # Create images directory
     images_dir = Path("extracted_images")
     images_dir.mkdir(exist_ok=True)
@@ -96,8 +91,8 @@ def _read_pdf_with_images(file_bytes: bytes, filename: str) -> tuple[str, List[s
     return "\n\n".join(texts), image_paths, tables_data
 
 
-def _read_pdf(file_bytes: bytes) -> str:
-    """Fallback PDF reader using pypdf"""
+def read_pdf(file_bytes: bytes) -> str:
+    """Fallback PDF reader using pypdf."""
     reader = PdfReader(io.BytesIO(file_bytes))
     texts = []
     for i, page in enumerate(reader.pages, start=1):
@@ -107,83 +102,19 @@ def _read_pdf(file_bytes: bytes) -> str:
     return "\n".join(texts)
 
 
-def _read_docx(file_bytes: bytes) -> str:
+def read_docx(file_bytes: bytes) -> str:
+    """Extract text from DOCX files."""
     with io.BytesIO(file_bytes) as f:
         return docx2txt.process(f) or ""
 
 
-def _read_md(file_bytes: bytes) -> str:
+def read_md(file_bytes: bytes) -> str:
+    """Extract text from Markdown files."""
     html = markdown(file_bytes.decode("utf-8", errors="ignore"))
     soup = BeautifulSoup(html, "html.parser")
     return soup.get_text("\n")
 
 
-def _read_txt(file_bytes: bytes) -> str:
+def read_txt(file_bytes: bytes) -> str:
+    """Extract text from plain text files."""
     return file_bytes.decode("utf-8", errors="ignore")
-
-
-def load_and_split(
-    filename: str,
-    file_bytes: bytes,
-    *,
-    chunk_size: int,
-    chunk_overlap: int,
-) -> List[Dict]:
-    ext = os.path.splitext(filename)[1].lower()
-    if ext not in SUPPORTED_EXTENSIONS:
-        raise ValueError(f"Unsupported file type: {ext}")
-
-    image_paths = []
-    tables_data = []
-    
-    if ext == ".pdf":
-        try:
-            text, image_paths, tables_data = _read_pdf_with_images(file_bytes, filename)
-        except Exception:
-            # Fallback to simple text extraction
-            text = _read_pdf(file_bytes)
-    elif ext == ".docx":
-        text = _read_docx(file_bytes)
-    elif ext == ".md":
-        text = _read_md(file_bytes)
-    else:
-        text = _read_txt(file_bytes)
-
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
-        separators=["\n\n", "\n", " ", ""],
-    )
-    chunks = splitter.split_text(text)
-
-    results: List[Dict] = []
-    for i, chunk in enumerate(chunks):
-        metadata = {"source": filename, "chunk": i}
-        
-        # Add image paths to metadata if this chunk mentions images
-        chunk_images = []
-        for img_path in image_paths:
-            img_filename = Path(img_path).name
-            if img_filename in chunk:
-                chunk_images.append(img_path)
-        
-        if chunk_images:
-            metadata["images"] = chunk_images
-            
-        # Add table data to metadata if this chunk mentions tables
-        chunk_tables = []
-        for table_dict in tables_data:
-            table_ref = f"{Path(filename).stem}_page{table_dict['page']}_table{table_dict['table_index'] + 1}"
-            if table_ref in chunk:
-                chunk_tables.append(table_dict)
-        
-        if chunk_tables:
-            metadata["tables"] = chunk_tables
-            
-        results.append(
-            {
-                "content": chunk,
-                "metadata": metadata,
-            }
-        )
-    return results

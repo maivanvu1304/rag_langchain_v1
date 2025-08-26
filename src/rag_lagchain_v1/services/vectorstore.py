@@ -9,7 +9,7 @@ from langchain_core.documents import Document
 from qdrant_client import QdrantClient
 from qdrant_client.models import Filter, FieldCondition, MatchValue
 
-from .config import get_config
+from ..core.config import get_config
 
 
 def get_embeddings() -> OpenAIEmbeddings:

@@ -3,7 +3,7 @@ from __future__ import annotations
 import streamlit as st
 from pathlib import Path
 
-from .vectorstore import (
+from ..services.vectorstore import (
     get_collection_info,
     list_sources, 
     search_by_source,

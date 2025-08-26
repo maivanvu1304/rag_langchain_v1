@@ -1,0 +1,24 @@
+Tài liệu mẫu về RAG System
+
+Giới thiệu
+RAG (Retrieval-Augmented Generation) là một phương pháp kết hợp tìm kiếm thông tin và sinh văn bản để tạo ra các câu trả lời chính xác và có căn cứ.
+
+Thành phần chính
+1. Document Ingestion: Xử lý và lưu trữ tài liệu
+2. Vector Search: Tìm kiếm similarity trong vector space
+3. Generation: Sinh câu trả lời từ context được tìm thấy
+
+Ưu điểm
+- Tính chính xác cao nhờ có căn cứ từ tài liệu gốc
+- Khả năng cập nhật thông tin dễ dàng
+- Giảm thiểu hallucination của LLM
+
+Ứng dụng
+RAG được sử dụng rộng rãi trong:
+- Chatbot hỗ trợ khách hàng
+- Hệ thống tìm kiếm thông minh  
+- Trợ lý ảo cho doanh nghiệp
+- Phân tích tài liệu pháp lý
+
+Kết luận
+RAG là một công nghệ quan trọng trong việc xây dựng các hệ thống AI đáng tin cậy và hiệu quả.

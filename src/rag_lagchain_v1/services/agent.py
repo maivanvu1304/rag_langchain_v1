@@ -9,7 +9,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from pydantic import BaseModel, Field
 
-from .config import get_config
+from ..core.config import get_config
 from .vectorstore import similarity_search
 
 
